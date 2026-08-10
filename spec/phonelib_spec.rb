@@ -1480,7 +1480,20 @@ describe Phonelib do
   end
 
   context 'issue #355' do
-    it 'should not take national number from a country that only matched as possible' do
+    it 'passing + in phone locks search country mechanism' do
+      phone = Phonelib.parse('+81079460238401')
+
+      expect(Phonelib.ignore_plus).to be false
+      expect(phone.valid?).to be false
+      expect(phone.country).to eq('JP')
+      expect(phone.country_code).to eq('81')
+      expect(phone.national_number).to eq('79460238401')
+      expect(phone.e164).to eq('+8179460238401')
+      expect(phone.international).to eq('+81 7946 023 8401')
+    end
+
+    it 'passing + in phone with Phonelib.ignore_plus detects country' do
+      Phonelib.ignore_plus = true
       phone = Phonelib.parse('+81079460238401')
 
       expect(phone.valid?).to be true
@@ -1489,10 +1502,11 @@ describe Phonelib do
       expect(phone.national_number).to eq('9460238401')
       expect(phone.e164).to eq('+79460238401')
       expect(phone.international).to eq('+7 946 023-84-01')
+      Phonelib.ignore_plus = false
     end
 
     it 'should return e164 that parses back as valid' do
-      %w[+81079460238401 81079460238401 8~1079460238401].each do |number|
+      %w[81079460238401 8~1079460238401].each do |number|
         phone = Phonelib.parse(number)
 
         expect(phone.valid?).to be true
