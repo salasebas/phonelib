@@ -22,7 +22,7 @@ module Phonelib
     # method saves extended data file
     def save_extended_data_file
       extended = {
-        Phonelib::Core::EXT_PREFIXES => @prefixes,
+        Phonelib::Core::EXT_PREFIXES => intern_hashes(@prefixes),
         Phonelib::Core::EXT_GEO_NAMES => @geo_names,
         Phonelib::Core::EXT_COUNTRY_NAMES => @countries,
         Phonelib::Core::EXT_TIMEZONES => @timezones,
@@ -32,6 +32,14 @@ module Phonelib
         Marshal.dump(extended, f)
       end
       puts 'DATA SAVED'
+    end
+
+    def intern_hashes(hash, table = {})
+      canonical = {}
+      hash.each do |k, v|
+        canonical[k] = v.is_a?(Hash) ? intern_hashes(v, table) : v
+      end
+      table[canonical] ||= canonical
     end
 
     # method updates prefixes hash recursively
