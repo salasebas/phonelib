@@ -1,4 +1,5 @@
 ## Upcoming Changes (unreleased)
+- Deduplicate extended data to reduce runtime memory usage by ~41MB
 
 ## 0.6.55 - 10 January 2022
 - updated data
