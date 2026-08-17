@@ -17,7 +17,7 @@ module Phonelib
     end
 
     def original_starts_with_plus_or_double_zero?
-      significant_original_s[0] == Core::PLUS_SIGN || significant_original_s[0..1] == '00'
+      significant_original_s[0] == Core::PLUS_SIGN || significant_original_s[0..1] == '00' && significant_original_s[2..-1] =~ cr('[1-9]+')
     end
 
     # converts symbols in phone to numbers
