@@ -139,7 +139,9 @@ module Phonelib
         key = data[:id]
         parsed = parse_single_country(phone, data)
         unless parsed && parsed[key] && parsed[key][:valid].size > 0
-          replaced_parsed = parse_single_country(with_replaced_national_prefix(phone, data), data)
+          replaced = with_replaced_national_prefix(phone, data)
+          # re-parsing an unchanged phone cannot change the result
+          replaced_parsed = parse_single_country(replaced, data) unless replaced == phone
           parsed = replaced_parsed unless replaced_parsed.nil?
         end
         if (!Phonelib.strict_double_prefix_check || key == country) && double_prefix_allowed?(data, phone, parsed && parsed[key])
