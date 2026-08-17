@@ -48,7 +48,7 @@ module Phonelib
 
     # returns country prefix for provided country or nil
     def country_prefix(country)
-      country = country.to_s.upcase
+      country = normalize_passed_country(country)
       Phonelib.phone_data[country] && \
         Phonelib.phone_data[country][Core::COUNTRY_CODE]
     end
@@ -117,9 +117,9 @@ module Phonelib
       country ||= (original_starts_with_plus_or_double_zero? ? nil : Phonelib.default_country)
 
       if country.is_a?(Array)
-        country.compact.map { |e| e.to_s.upcase }
+        country.compact.map { |e| normalize_passed_country(e) }
       else
-        [country && country.to_s.upcase]
+        [country && normalize_passed_country(country)]
       end
     end
 
@@ -232,5 +232,14 @@ module Phonelib
       match = number.match(cr("^(?:#{regex})$"))
       match && match.to_s.length == number.length
     end
+
+    # normalization for passed country unless we are not talking about International XXX
+    def normalize_passed_country(country)
+      return country if country.nil?
+      country = country.to_s
+      return country if country.start_with?('International')
+      country.upcase
+    end
+
   end
 end
