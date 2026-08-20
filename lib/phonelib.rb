@@ -8,6 +8,10 @@ module Phonelib
   require 'phonelib/phone_analyzer_helper'
   require 'phonelib/phone_analyzer'
   require 'phonelib/phone_extended_data'
+  require 'phonelib/validation_error'
+  require 'phonelib/errors'
+  require 'phonelib/validation_result'
+  require 'phonelib/phone_validation'
   require 'phonelib/phone'
 
   extend Core
@@ -15,11 +19,14 @@ end
 
 if defined?(ActiveModel) || defined?(Rails)
   autoload :PhoneValidator, 'validators/phone_validator'
+  locale_files = Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
+  I18n.load_path |= locale_files if defined?(I18n)
 
   if defined?(Rails)
     class Phonelib::Railtie < Rails::Railtie
       initializer 'phonelib' do |app|
         app.config.eager_load_namespaces << Phonelib
+        app.config.i18n.load_path |= Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
       end
     end
   end
