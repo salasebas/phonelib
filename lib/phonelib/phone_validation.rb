@@ -118,6 +118,8 @@ module Phonelib
 
     def viable_input?
       candidate = significant_original_s.sub(cr('[^0-9A-Za-z]+\z'), '')
+      return false if Phonelib.strict_check && !sanitized.match?(cr('\A[0-9]+\z'))
+
       minimum_digits = candidate.match?(cr('\A[0-9]+\z')) ? 2 : 3
       sanitized.length >= minimum_digits
     end
@@ -180,6 +182,7 @@ module Phonelib
       return @diagnostic_possibility if defined?(@diagnostic_possibility)
 
       return :impossible if passed_country_invalid?
+      return :impossible unless viable_input?
       return :possible if possible_special_number?
 
       context = diagnostic_number_context
@@ -187,9 +190,9 @@ module Phonelib
 
       national_digits, data = context
       length = national_digits.length
-      return :possible_local_only if possible_local_only_lengths_for(data).include?(length)
       return :possible if possible_lengths_for(data).include?(length)
       return :possible if additional_regex_possible?(national_digits, data)
+      return :possible_local_only if possible_local_only_lengths_for(data).include?(length)
 
       :impossible
     end
@@ -218,7 +221,12 @@ module Phonelib
         data = countries_data.find do |candidate|
           candidate[Core::MAIN_COUNTRY_FOR_CODE] == 'true'
         end || countries_data.first
-        return [international_digits.delete_prefix(country_code), data]
+        national_digits = if valid? || possible?
+                            @national_number
+                          else
+                            international_digits.delete_prefix(country_code)
+                          end
+        return [national_digits, data]
       end
 
       resolved_country = self.country
@@ -235,7 +243,10 @@ module Phonelib
     end
 
     def international_digits_for_diagnostics
-      return sanitized if significant_original_s.start_with?(Core::PLUS_SIGN)
+      if !Phonelib.ignore_plus &&
+         significant_original_s.start_with?(Core::PLUS_SIGN)
+        return sanitized
+      end
 
       digits_after_international_dialing_prefix
     end

@@ -36,6 +36,14 @@ describe 'phone validation diagnostics' do
     end
   end
 
+  it 'rejects nonnumeric strict-mode input before possibility checks' do
+    Phonelib.strict_check = true
+
+    result = Phonelib.parse('abc', 'US').validation(possible: true)
+
+    expect(result.errors.details).to eq([{ error: :not_a_number }])
+  end
+
   it 'allows surrounding punctuation on an otherwise viable two-digit input' do
     result = Phonelib.parse('(12)', 'US').validation(possible: true)
 
@@ -157,6 +165,15 @@ describe 'phone validation diagnostics' do
     )
   end
 
+  it 'uses parser country routing when ignoring a leading plus sign' do
+    Phonelib.ignore_plus = true
+    phone = Phonelib.parse('+119441234567', 'CU')
+
+    expect(phone.country).to eq('GB')
+    expect(phone).to be_possible
+    expect(phone.validation(possible: true).possibility).to eq(:possible)
+  end
+
   it 'reports when a parsed number is longer than every regional possibility' do
     result = Phonelib.parse('+1 65025300001').validation(possible: true)
 
@@ -209,6 +226,14 @@ describe 'phone validation diagnostics' do
         expected_lengths: [7, 9, 10]
       }]
     )
+  end
+
+  it 'uses parser-normalized national digits for international numbers' do
+    phone = Phonelib.parse('+44 (0) 20-7031-3000')
+
+    expect(phone).to be_valid
+    expect(phone).to be_possible
+    expect(phone.validation.possibility).to eq(:possible)
   end
 
   it 'reports a length between the regional bounds that is not permitted' do
@@ -268,6 +293,14 @@ describe 'phone validation diagnostics' do
 
     expect(phone.possible?).to be true
     expect(phone.validation(possible: true)).to be_valid
+    expect(phone.validation(possible: true).possibility).to eq(:possible)
+  end
+
+  it 'prefers a runtime regex possibility over a local-only length' do
+    Phonelib.add_additional_regex(:de, :mobile, '12')
+    phone = Phonelib.parse('+49 12')
+
+    expect(phone).to be_possible
     expect(phone.validation(possible: true).possibility).to eq(:possible)
   end
 

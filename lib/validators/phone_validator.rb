@@ -55,7 +55,7 @@
 #
 if defined?(I18n)
   locale_files = Dir[File.expand_path('../phonelib/locale/*.yml', __dir__)]
-  I18n.load_path |= locale_files
+  I18n.load_path = locale_files | I18n.load_path
 end
 
 class PhoneValidator < ActiveModel::EachValidator

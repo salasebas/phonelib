@@ -20,13 +20,14 @@ end
 autoload :PhoneValidator, 'validators/phone_validator'
 
 locale_files = Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
-I18n.load_path |= locale_files if defined?(I18n)
+I18n.load_path = locale_files | I18n.load_path if defined?(I18n)
 
 if defined?(Rails)
   class Phonelib::Railtie < Rails::Railtie
     initializer 'phonelib' do |app|
       app.config.eager_load_namespaces << Phonelib
-      app.config.i18n.load_path |= Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
+      locale_files = Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
+      app.config.i18n.load_path = locale_files | app.config.i18n.load_path
     end
   end
 end

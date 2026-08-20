@@ -178,7 +178,7 @@ describe 'detailed phone validation' do
     expect(model.errors.messages[:number]).to eq(['is not a phone number'])
   end
 
-  it 'uses the bundled English translation when no custom message is given' do
+  it 'lets the application override the bundled detailed error translation' do
     model = validate_number(
       { detailed_errors: true, types: :mobile },
       '+442079460018'
@@ -186,7 +186,7 @@ describe 'detailed phone validation' do
 
     expect(model).not_to be_valid
     expect(model.errors.messages[:number]).to eq([
-      'has a phone type that is not allowed'
+      'application phone type override'
     ])
   end
 
