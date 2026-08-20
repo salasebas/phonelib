@@ -53,6 +53,11 @@
 #     validates :number, phone: { extensions: false }
 #   end
 #
+if defined?(I18n)
+  locale_files = Dir[File.expand_path('../phonelib/locale/*.yml', __dir__)]
+  I18n.load_path |= locale_files
+end
+
 class PhoneValidator < ActiveModel::EachValidator
   # Include all core methods
   include Phonelib::Core

@@ -17,17 +17,16 @@ module Phonelib
   extend Core
 end
 
-if defined?(ActiveModel) || defined?(Rails)
-  autoload :PhoneValidator, 'validators/phone_validator'
-  locale_files = Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
-  I18n.load_path |= locale_files if defined?(I18n)
+autoload :PhoneValidator, 'validators/phone_validator'
 
-  if defined?(Rails)
-    class Phonelib::Railtie < Rails::Railtie
-      initializer 'phonelib' do |app|
-        app.config.eager_load_namespaces << Phonelib
-        app.config.i18n.load_path |= Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
-      end
+locale_files = Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
+I18n.load_path |= locale_files if defined?(I18n)
+
+if defined?(Rails)
+  class Phonelib::Railtie < Rails::Railtie
+    initializer 'phonelib' do |app|
+      app.config.eager_load_namespaces << Phonelib
+      app.config.i18n.load_path |= Dir[File.expand_path('phonelib/locale/*.yml', __dir__)]
     end
   end
 end
