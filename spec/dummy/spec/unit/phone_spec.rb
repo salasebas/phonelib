@@ -198,7 +198,7 @@ describe 'detailed phone validation' do
 
     expect(model).not_to be_valid
     expect(model.errors.messages[:number]).to eq([
-      'has a phone type that is not allowed'
+      'application phone type override'
     ])
     if model.errors.respond_to?(:details)
       expect(model.errors.details[:number].first[:error]).to eq(
